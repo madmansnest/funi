@@ -1,0 +1,5 @@
+#!/usr/local/bin/zsh
+# Output funi to pasteboard
+result=$(funi $@)
+echo $result | pbcopy
+>&2 echo copied $result to pasteboard

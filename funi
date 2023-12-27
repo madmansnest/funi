@@ -1,0 +1,64 @@
+#!/usr/bin/env zsh
+read -r -d '' appinfo <<FIN
+\e[1mfuni\e[0m — find unicode characters by name
+
+\e[4mUsage:\e[0m
+
+\e[1mfuni\e[0m [NAME]
+
+\e[4mArguments:\e[0m
+
+  [NAME] full or partial (default) unicode name of the character
+
+\e[4mOptions: (only one can be specified at the time)\e[0m
+
+  -f search by full name
+
+  -v print names next to characters
+
+  -h print this message
+
+  -V print the version information
+FIN
+version=42.0
+db_file="$(dirname "$(readlink -f "$0")")/unidata/SimpleUnicodeData.txt"
+
+if [[ ($1 == "-V") ]]; then
+  >&2 echo "\e[1mfuni\e[0m v.$version"; exit
+elif [[ ($1 == "-h") ]]; then
+  >&2 echo $appinfo; exit
+else
+  full=false; verbose=false
+  for ((i=1; i<=$ARGC; i++)); do
+    case $@[i] in
+      -f)
+        full=true
+        verbose=false
+        shift
+        ;;
+      -v)
+        full=false
+        verbose=true
+        shift
+        ;;
+      ?)
+        break
+    esac
+  done
+  if ([[ -z $@ ]]); then
+    query=$(</dev/stdin)
+  else
+    query=$@
+  fi
+  awk -v query="$query" -v full=$full -v verbose=$verbose '
+    BEGIN {
+      FS="|"
+      re = (full=="true") ? "^"query"$" : query
+    }
+    # { print $2 }
+    match($2, toupper(re)) {
+      if (verbose=="true") { print $1,$2 }
+      else { print $1 }
+    }
+  ' $db_file
+fi

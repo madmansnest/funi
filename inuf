@@ -1,0 +1,21 @@
+#!/usr/bin/env awk -f
+# Uses funi to replace :unicode character names: with corresponding characters
+BEGIN {re = "( |^):[a-z]([a-z]|-| )+[a-z]:( |$)"}
+{
+  while (match($0, re)) {
+    replacement=""
+    prefix = substr($0, 0, RSTART-1)
+    tag = substr($0, RSTART, RLENGTH)
+    front_space = tag~/^ / ? " " : ""
+    back_space = tag~/ $/ ? " " : ""
+    original_tag = tag
+    gsub(/:/, "", tag)
+    cmd = "funi -f " tag
+    cmd | getline replacement
+    if (replacement=="") replacement=original_tag
+    close(cmd)
+    printf "%s%s%s%s", prefix, front_space, replacement, back_space
+    $0 = substr($0, RSTART+RLENGTH, length($0))
+  }
+  print $0
+}
