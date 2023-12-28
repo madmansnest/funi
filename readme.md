@@ -11,7 +11,7 @@ A zsh* script that uses (the one true) awk to query a text file for characters w
 inuf
 ----
 
-A filter written in (the one true) awk to replace :unicode names: in a text.
+A filter written in (the one true) awk to replace {unicode names} in a text.
 
 funic
 -----
